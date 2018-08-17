@@ -1,38 +1,30 @@
 <?xml version="1.0"?>
 <object xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-    name="PrenotazioniDay"
+    name="Prenotazione"
     meta_type="Dexterity FTI"
     i18n:domain="rg.prenotazioni">
 
   <!-- Basic properties -->
   <property
       i18n:translate=""
-      name="title">PrenotazioniDay</property>
+      name="title">Prenotazione</property>
   <property
       i18n:translate=""
-      name="description">A folder that will contain booking for this day</property>
+      name="description">Informations about a single booking</property>
 
   <property name="allow_discussion">False</property>
-  <property name="factory">PrenotazioniDay</property>
+  <property name="factory">Prenotazione</property>
   <property name="icon_expr"></property>
   <property name="link_target"></property>
 
   <!-- Hierarchy control -->
   <property name="global_allow">False</property>
-  <property name="filter_content_types">True</property>
-  <property name="allowed_content_types">
-    <element value="Prenotazione" />
-          <!--
-    <element value="Document" />
-    <element value="File" />
-  -->
-  </property>
   <!-- Schema, class and security -->
-  <property name="add_permission">rg.prenotazioni.AddPrenotazioniDay</property>
-  <property name="klass">rg.prenotazioni.content.prenotazioni_day.PrenotazioniDay</property>
+  <property name="add_permission">rg.prenotazioni.AddPrenotazione</property>
+  <property name="klass">rg.prenotazioni.content.prenotazione.Prenotazione</property>
   <property name="model_file"></property>
   <property name="model_source"></property>
-  <property name="schema">rg.prenotazioni.content.prenotazioni_day.IPrenotazioniDay</property>
+  <property name="schema">rg.prenotazioni.content.prenotazione.IPrenotazione</property>
 
   <!-- Enabled behaviors -->
   <property name="behaviors" purge="false">
@@ -54,7 +46,7 @@
   </property>
 
   <!-- View information -->
-  <property name="add_view_expr">string:${folder_url}/++add++PrenotazioniDay</property>
+  <property name="add_view_expr">string:${folder_url}/++add++Prenotazione</property>
   <property name="default_view">view</property>
   <property name="default_view_fallback">False</property>
   <property name="immediate_view">view</property>
