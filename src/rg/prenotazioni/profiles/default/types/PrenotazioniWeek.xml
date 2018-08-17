@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <object xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-    name="PrenotazioniYear"
+    name="PrenotazioniWeek"
     meta_type="Dexterity FTI"
     i18n:domain="rg.prenotazioni">
 
   <!-- Basic properties -->
   <property
       i18n:translate=""
-      name="title">PrenotazioniYear</property>
+      name="title">PrenotazioniWeek</property>
   <property
       i18n:translate=""
-      name="description">Booking Year Folder</property>
+      name="description">Booking Week Folder</property>
 
   <property name="allow_discussion">False</property>
-  <property name="factory">PrenotazioniYear</property>
+  <property name="factory">PrenotazioniWeek</property>
   <property name="icon_expr"></property>
   <property name="link_target"></property>
 
@@ -21,18 +21,17 @@
   <property name="global_allow">False</property>
   <property name="filter_content_types">True</property>
   <property name="allowed_content_types">
-    <element value="PrenotazioniWeek" />
-          <!--
+  <!--
     <element value="Document" />
     <element value="File" />
   -->
   </property>
   <!-- Schema, class and security -->
-  <property name="add_permission">rg.prenotazioni.AddPrenotazioniYear</property>
-  <property name="klass">rg.prenotazioni.content.prenotazioni_year.PrenotazioniYear</property>
+  <property name="add_permission">rg.prenotazioni.AddPrenotazioniWeek</property>
+  <property name="klass">rg.prenotazioni.content.prenotazioni_week.PrenotazioniWeek</property>
   <property name="model_file"></property>
   <property name="model_source"></property>
-  <property name="schema">rg.prenotazioni.content.prenotazioni_year.IPrenotazioniYear</property>
+  <property name="schema">rg.prenotazioni.content.prenotazioni_week.IPrenotazioniWeek</property>
 
   <!-- Enabled behaviors -->
   <property name="behaviors" purge="false">
@@ -54,7 +53,7 @@
   </property>
 
   <!-- View information -->
-  <property name="add_view_expr">string:${folder_url}/++add++PrenotazioniYear</property>
+  <property name="add_view_expr">string:${folder_url}/++add++PrenotazioniWeek</property>
   <property name="default_view">view</property>
   <property name="default_view_fallback">False</property>
   <property name="immediate_view">view</property>

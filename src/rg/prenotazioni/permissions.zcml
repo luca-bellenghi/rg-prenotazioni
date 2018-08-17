@@ -7,6 +7,12 @@
   <!-- -*- extra stuff goes here -*- -->
 
     <permission
+        id="rg.prenotazioni.AddPrenotazioniWeek"
+        title="rg.prenotazioni: Add PrenotazioniWeek"
+    />
+
+        
+    <permission
         id="rg.prenotazioni.AddPrenotazioniYear"
         title="rg.prenotazioni: Add PrenotazioniYear"
     />
