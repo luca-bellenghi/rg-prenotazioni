@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    i18n_domain="rg.prenotazioni">
+
+    <!-- -*- extra stuff goes here -*- -->
+
+    <utility
+        component=".voc_ore_inizio.VocOreInizioFactory"
+        name="rg.prenotazioni.VocOreInizio"
+    />
+
+        
+</configure>

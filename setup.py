@@ -39,16 +39,17 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        # -*- Extra requirements: -*-
         'plone.app.dexterity',
         'plone.api>=1.8.4',
         'Products.GenericSetup>=1.8.2',
         'setuptools',
         'z3c.jbot',
-        'collective.contentrules.mailfromfield>0.2.0',
+#        'collective.contentrules.mailfromfield>0.2.0',
         'collective.fontawesome',
         'pyinter',
-        'collective.recaptcha'
+        'collective.recaptcha',
+        'collective.dexteritytextindexer',
+        'collective.z3cform.datagridfield'
     ],
     extras_require={
         'test': [
