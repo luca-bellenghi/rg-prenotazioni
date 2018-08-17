@@ -5,4 +5,5 @@
   <object meta_type="Dexterity FTI" name="PrenotazioniFolder"/>
   <object meta_type="Dexterity FTI" name="PrenotazioniYear"/>
   <object meta_type="Dexterity FTI" name="PrenotazioniWeek"/>
+  <object meta_type="Dexterity FTI" name="PrenotazioniDay"/>
 </object>
