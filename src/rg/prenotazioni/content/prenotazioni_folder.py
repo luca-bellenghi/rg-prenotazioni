@@ -16,27 +16,38 @@ from collective.z3cform.datagridfield import DataGridFieldFactory, DictRow
 
 class ISettimanaTipoRow(Interface):
     giorno = schema.TextLine(
-        title=_("ciccia")
+        title=_(u"ciccia")
     )
     inizio_m = schema.Choice(
         title=_(u"Ora inizio mattina"),
-        vocabulary="vocOreInizio",
+        vocabulary="rg.prenotazioni.VocOreInizio",
     )
     fine_m = schema.Choice(
         title=_(u"Ora fine mattina"),
-        vocabulary="vocOreInizio",
+        vocabulary="rg.prenotazioni.VocOreInizio",
     )
 
     inizio_p = schema.Choice(
         title=_(u"Ora inizio pomeriggio"),
-        vocabulary="vocOreInizio",
+        vocabulary="rg.prenotazioni.VocOreInizio",
     )
 
     fine_p = schema.Choice(
         title=_(u"Ora fine pomeriggio"),
-        vocabulary="vocOreInizio",
+        vocabulary="rg.prenotazioni.VocOreInizio",
     )
 
+
+class ITipologiaRow(Interface):
+    name = schema.TextLine(
+        title=_(u"Typology name"),
+        required=True,
+    )
+    duration = schema.Choice(
+        title=_(u"Duration value"),
+        required=True,
+        ocabulary="rg.prenotazioni.vocDurataIncontro"
+    )
 
 
 class IPrenotazioniFolder(model.Schema):
@@ -46,7 +57,7 @@ class IPrenotazioniFolder(model.Schema):
     dexteritytextindexer.searchable('descriptionAgenda')
     descriptionAgenda = RichText(
         required=False,
-        title=_(u'Descrizione Agenda', default=u''),
+        title=_(u'Descrizione Agenda', default=u'Descrizione Agenda'),
         description=(u"Inserire il testo di presentazione "
                      u"dell'agenda corrente"),
 
@@ -54,7 +65,6 @@ class IPrenotazioniFolder(model.Schema):
 
     daData = schema.Date(
         title=_(u'Data inizio validità'),
-        description=_(u""),
     )
 
     aData = schema.Date(
@@ -82,7 +92,8 @@ class IPrenotazioniFolder(model.Schema):
             u"nel formato GG/MM/AAAA. Al posto dell'anno puoi mettere un "
             u"asterisco per indicare un evento che ricorre annualmente."
         ),
-        required=False
+        required=False,
+        value_type=schema.TextLine(),
     )
 
     futureDays = schema.Int(
@@ -104,7 +115,18 @@ class IPrenotazioniFolder(model.Schema):
                               u"Keep 0 to give no limits."),
     )
 
-    # tipologia
+    tipologia = schema.Lines(
+        title=_(u"Tipologie di richiesta"),
+        description=_('tipologia_help',
+                      default=u"Put booking types there (one per line).\n"
+                              u"If you do not provide this field, "
+                              u"not type selection will be available"),
+        value_type=DictRow(
+            schema=ITipologiaRow
+        )
+
+    )
+    form.widget(tipologia=DataGridFieldFactory)
 
     gates = schema.List(
         title=_('gates_label', "Gates"),
@@ -113,6 +135,7 @@ class IPrenotazioniFolder(model.Schema):
                               u"If you do not fill this field, "
                               u"one gate is assumed"),
         required=False,
+        value_type=schema.TextLine(),
     )
 
     unavailable_gates = schema.List(
@@ -127,12 +150,14 @@ class IPrenotazioniFolder(model.Schema):
                               u'line in the "Gates" field'
                           ),
         required=False,
+        value_type=schema.TextLine(),
     )
 
     email_responsabile = schema.TextLine(
         title=_(u'Email del responsabile'),
         description=_(u"Inserisci l'indirizzo email del responsabile "
                       "delle prenotazioni"),
+        required=False,
     )
 
 

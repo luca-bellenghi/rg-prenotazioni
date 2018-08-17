@@ -5,6 +5,12 @@
     <!-- -*- extra stuff goes here -*- -->
 
     <utility
+        component=".voc_durata_incontro.VocDurataIncontroFactory"
+        name="rg.prenotazioni.VocDurataIncontro"
+    />
+
+        
+    <utility
         component=".voc_ore_inizio.VocOreInizioFactory"
         name="rg.prenotazioni.VocOreInizio"
     />
