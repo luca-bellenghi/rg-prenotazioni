@@ -47,7 +47,7 @@ setup(
 #        'collective.contentrules.mailfromfield>0.2.0',
         'collective.fontawesome',
         'pyinter',
-        'collective.recaptcha',
+        'plone.formwidget.recaptcha',
         'collective.dexteritytextindexer',
         'collective.z3cform.datagridfield'
     ],

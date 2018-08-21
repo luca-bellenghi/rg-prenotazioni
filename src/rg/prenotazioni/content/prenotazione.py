@@ -10,27 +10,24 @@ from zope import schema
 from zope.interface import implementer
 from rg.prenotazioni import _
 from collective import dexteritytextindexer
+from .prenotazioni_folder import IPrenotazioniFolder
 
 
 class IPrenotazione(model.Schema):
     """ Marker interface and Dexterity Python Schema for Prenotazione
     """
 
-    dexteritytextindexer.searchable('email')
     # XXX validator
     email = schema.TextLine(
         title=_(u"email"),
     )
-    dexteritytextindexer.searchable('telefono')
     telefono = schema.TextLine(
         title=_(u"Phone number"),
     )
-    dexteritytextindexer.searchable('mobile')
     mobile = schema.TextLine(
         title=_("mobile", u"Mobile number"),
     )
 
-    dexteritytextindexer.searchable('tipologia_prenotazione')
     tipologia_prenotazione = schema.Choice(
         title=_(u"booking tipology"),
         vocabulary='rg.prenotazioni.tipologies',
@@ -42,14 +39,12 @@ class IPrenotazione(model.Schema):
         required=True,
     )
 
-    dexteritytextindexer.searchable('azienda')
     azienda = schema.TextLine(
         title=_(u"Company"),
         description=_(u"Inserisci la denominazione dell'azienda "
                       u"del richiedente"),
     )
 
-    dexteritytextindexer.searchable('gate')
     gate = schema.TextLine(
         title=_(u"Gate"),
         description=_(u"Sportello a cui presentarsi"),
@@ -60,7 +55,6 @@ class IPrenotazione(model.Schema):
         required=True,
     )
 
-    dexteritytextindexer.searchable('staff_notes')
     staff_notes = schema.Text(
         required=False,
         title=_('staff_notes_label', u"Staff notes")
@@ -71,3 +65,72 @@ class IPrenotazione(model.Schema):
 class Prenotazione(Item):
     """
     """
+
+    def getData_prenotazione(self):
+        return self.data_prenotazione
+
+    def getData_scadenza(self):
+        return self.data_scadenza
+
+    def getGate(self):
+        return self.gate
+
+    def getTipologia_prenotazione(self):
+        return self.tipologia_prenotazione
+
+    def getAzienda(self):
+        return self.azienda
+
+    def getMobile(self):
+        return self.mobile
+
+    def getTelefono(self):
+        return self.telefono
+
+    def getEmail(self):
+        return self.email
+
+    def getStaff_notes(self):
+        return self.staff_notes
+
+    def getPrenotazioniFolder(self):
+        """Ritorna l'oggetto prenotazioni folder"""
+
+        for parent in self.aq_chain:
+            if IPrenotazioniFolder.providedBy(parent):
+                return parent
+        raise Exception("Could not find Prenotazioni Folder "
+                        "in acquisition chain of %r" % self)
+
+    def getEmailResponsabile(self):
+        """
+        """
+        return self.getPrenotazioniFolder().getEmail_responsabile()
+
+    # def Date(self, zone=None):
+    #     """
+    #     Dublin Core element - default date
+    #     """
+    #     # Return reservation date
+    #     if zone is None:
+    #         zone = _zone
+    #     data_prenotazione = self.data_prenotazione
+    #     if data_prenotazione:
+    #         return data_prenotazione.toZone(zone).ISO()
+
+    def getDuration(self):
+        ''' Return current duration
+        '''
+        start = self.getData_prenotazione()
+        end = self.getData_scadenza()
+        if start and end:
+            return end - start
+        else:
+            return 1
+
+    def Subject(self):
+        """ Reuse plone subject to do something useful
+        """
+        subject = set(self.getField('subject').get(self))
+        subject.add('Gate: %s' % self.getGate())
+        return sorted(subject)

@@ -12,29 +12,40 @@ from zope.interface import implementer, Interface
 from collective import dexteritytextindexer
 from rg.prenotazioni import _
 from collective.z3cform.datagridfield import DataGridFieldFactory, DictRow
+from collective.z3cform.datagridfield import BlockDataGridFieldFactory
 
 
-class ISettimanaTipoRow(Interface):
+class ISettimanaTipoRow(model.Schema):
+
+#    form.widget(giorno=BlockDataGridFieldFactory)
     giorno = schema.TextLine(
-        title=_(u"ciccia")
+        title=_(u"Giorno")
     )
     inizio_m = schema.Choice(
         title=_(u"Ora inizio mattina"),
         vocabulary="rg.prenotazioni.VocOreInizio",
+        required=False,
+        default=''
     )
-    fine_m = schema.Choice(
+    end_m = schema.Choice(
         title=_(u"Ora fine mattina"),
         vocabulary="rg.prenotazioni.VocOreInizio",
+        required=False,
+        default=''
     )
 
     inizio_p = schema.Choice(
         title=_(u"Ora inizio pomeriggio"),
         vocabulary="rg.prenotazioni.VocOreInizio",
+        required=False,
+        default=''
     )
 
-    fine_p = schema.Choice(
+    end_p = schema.Choice(
         title=_(u"Ora fine pomeriggio"),
         vocabulary="rg.prenotazioni.VocOreInizio",
+        required=False,
+        default=''
     )
 
 
@@ -46,7 +57,7 @@ class ITipologiaRow(Interface):
     duration = schema.Choice(
         title=_(u"Duration value"),
         required=True,
-        ocabulary="rg.prenotazioni.vocDurataIncontro"
+        vocabulary="rg.prenotazioni.VocDurataIncontro"
     )
 
 
@@ -80,7 +91,16 @@ class IPrenotazioniFolder(model.Schema):
         required=True,
         value_type=DictRow(
             schema=ISettimanaTipoRow
-        )
+        ),
+        default = [
+            {'giorno': u'Lunedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Martedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Mercoledì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Giovedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Venerdì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Sabato', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Domenica', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+        ]
     )
     form.widget(settimana_tipo=DataGridFieldFactory)
 
@@ -94,6 +114,7 @@ class IPrenotazioniFolder(model.Schema):
         ),
         required=False,
         value_type=schema.TextLine(),
+        default=[]
     )
 
     futureDays = schema.Int(
@@ -115,7 +136,7 @@ class IPrenotazioniFolder(model.Schema):
                               u"Keep 0 to give no limits."),
     )
 
-    tipologia = schema.Lines(
+    tipologia = schema.List(
         title=_(u"Tipologie di richiesta"),
         description=_('tipologia_help',
                       default=u"Put booking types there (one per line).\n"
@@ -136,6 +157,7 @@ class IPrenotazioniFolder(model.Schema):
                               u"one gate is assumed"),
         required=False,
         value_type=schema.TextLine(),
+        default=[]
     )
 
     unavailable_gates = schema.List(
@@ -151,8 +173,10 @@ class IPrenotazioniFolder(model.Schema):
                           ),
         required=False,
         value_type=schema.TextLine(),
+        default=[]
     )
 
+    # XXX validate email
     email_responsabile = schema.TextLine(
         title=_(u'Email del responsabile'),
         description=_(u"Inserisci l'indirizzo email del responsabile "
@@ -166,3 +190,33 @@ class IPrenotazioniFolder(model.Schema):
 class PrenotazioniFolder(Container):
     """
     """
+
+    def getDescriptionAgenda(self):
+        return self.descriptionAgenda
+
+    def getSettimana_tipo(self):
+        return self.settimana_tipo
+
+    def getGates(self):
+        return self.gates
+
+    def getUnavailable_gates(self):
+        return self.unavailable_gates
+
+    def getDaData(self):
+        return self.daData
+
+    def getAData(self):
+        return self.aData
+
+    def getTipologia(self):
+        return self.tipologia
+
+    def getFestivi(self):
+        return self.festivi
+
+    def getFutureDays(self):
+        return self.futureDays
+
+    def getNotBeforeDays(self):
+        return self.notBeforeDays

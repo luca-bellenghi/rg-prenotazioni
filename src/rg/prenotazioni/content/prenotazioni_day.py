@@ -12,3 +12,4 @@ class IPrenotazioniDay(model.Schema):
 class PrenotazioniDay(Container):
     """
     """
+    exclude_from_nav = True

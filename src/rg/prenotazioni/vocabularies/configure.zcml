@@ -15,5 +15,12 @@
         name="rg.prenotazioni.VocOreInizio"
     />
 
+
+  <utility component=".gates.GatesVocabularyFactory"
+           name="rg.prenotazioni.gates"/>
+  <utility component=".review_states.BookingReviewStatesVocabularyFactory"
+           name="rg.prenotazioni.booking_review_states" />
+  <utility component=".tipologies.TipologiesVocabularyFactory"
+           name="rg.prenotazioni.tipologies"/>
         
 </configure>

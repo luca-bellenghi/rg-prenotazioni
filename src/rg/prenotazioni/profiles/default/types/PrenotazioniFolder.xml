@@ -40,9 +40,6 @@
     <element value="plone.app.dexterity.behaviors.discussion.IAllowDiscussion"/>
     <element value="plone.app.dexterity.behaviors.exclfromnav.IExcludeFromNavigation"/>
     <element value="plone.app.dexterity.behaviors.id.IShortName"/>
-    <element value="plone.app.dexterity.behaviors.metadata.IOwnership"/>
-    <element value="plone.app.dexterity.behaviors.metadata.IPublication"/>
-    <element value="plone.app.dexterity.behaviors.metadata.ICategorization"/>
     <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
     <element value="plone.app.lockingbehavior.behaviors.ILocking" />
     <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
@@ -52,9 +49,9 @@
   <property name="add_view_expr">string:${folder_url}/++add++PrenotazioniFolder</property>
   <property name="default_view">view</property>
   <property name="default_view_fallback">False</property>
-  <property name="immediate_view">view</property>
+  <property name="immediate_view">prenotazioni_week_view</property>
   <property name="view_methods">
-    <element value="view"/>
+    <element value="prenotazioni_week_view"/>
   </property>
 
   <!-- Method aliases -->
