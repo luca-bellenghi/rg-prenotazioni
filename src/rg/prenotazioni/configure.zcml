@@ -7,17 +7,12 @@
 
   <i18n:registerTranslations directory="locales" />
 
-  <!--
-    Be careful if you use general includeDependencies, it can have sideffects!
-    Better import explicite packages or configurations ;)
-  -->
-  <!--<includeDependencies package="." />-->
-
-  <include package=".browser" />
   <include package=".adapters" />
+  <include package=".browser" />
+  <include package=".contentrules" />
+  <include package=".vocabularies" />
 
   <include file="permissions.zcml" />
-
   <include file="upgrades.zcml" />
 
   <genericsetup:registerProfile
@@ -43,18 +38,18 @@
       name="rg.prenotazioni-hiddenprofiles"
       />
 
-  <!-- -*- extra stuff goes here -*- -->
-
-    <include package=".vocabularies" />
-
   <subscriber for=".prenotazione_event.IMovedPrenotazione"
               handler=".event.reallocate_gate" />
 
   <subscriber for=".prenotazione_event.IMovedPrenotazione"
               handler=".event.reallocate_container" />
-        
 
-<adapter factory=".indexes.Subject_prenotazione" name="Subject" />
-<adapter factory=".indexes.SearchableText_prenotazione" name="SearchableText" />
+  <adapter 
+    factory=".indexes.Subject_prenotazione" 
+    name="Subject" />
+
+  <adapter 
+    factory=".indexes.SearchableText_prenotazione" 
+    name="SearchableText" />
 
 </configure>

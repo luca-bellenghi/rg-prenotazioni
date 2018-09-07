@@ -24,6 +24,8 @@ from rg.prenotazioni import TZ
 from zope.component import getMultiAdapter
 from Products.statusmessages.interfaces import IStatusMessage
 from Acquisition import aq_inner
+from rg.prenotazioni.browser.z3c_custom_widget import CustomRadioFieldWidget
+from zope.interface import Invalid
 import re
 import pytz
 
@@ -143,103 +145,28 @@ class IAddForm(Interface):
     )
 
 
-def TipologyWidget(field, request):
-    ''' Custom radio widget
-    '''
-    from z3c.form.browser.radio import RadioWidget
-    class TipologyRadioWidget(RadioWidget):
-        ''' Override tipology RadioWidget
-        '''
-        template = ViewPageTemplateFile('templates/tipology_radio_widget.pt')
-
-        @property
-        @memoize
-        def prenotazione_add(self):
-            ''' Returns the prenotazioni_context_state view.
-
-            Everyone should know about this!
-            '''
-            return api.content.get_view('prenotazione_add',
-                                        self.context.context.aq_inner,
-                                        self.request)
-
-        @property
-        @memoize
-        def tipologies_bookability(self):
-            ''' Get tipology bookability
-            '''
-            booking_date = self.prenotazione_add.booking_DateTime.asdatetime()
-            prenotazioni = self.prenotazione_add.prenotazioni
-            return prenotazioni.tipologies_bookability(booking_date)
-
-        @property
-        @memoize
-        def items(self):
-            ''' Get tipology bookability
-            '''
-            voc = self.context.vocabulary
-            return [term for term in voc]
-
-        @property
-        @memoize
-        def bookable_items(self):
-            ''' Get tipology bookability
-            '''
-            keys = sorted(self.tipologies_bookability['bookable'])
-            keys = [key.decode('utf8') for key in keys]
-            voc = self.context.vocabulary
-            return [voc.getTerm(key) for key in keys if key in voc]
-
-        @property
-        @memoize
-        def unbookable_items(self):
-            ''' Get tipology bookability
-            '''
-            keys = sorted(self.tipologies_bookability['unbookable'])
-            keys = [key.decode('utf8') for key in keys]
-            voc = self.context.vocabulary
-            return [voc.getTerm(key) for key in keys if key in voc]
-
-        def __call__(self):
-            """ Call our beautiful template
-            """
-            return self.template()
-
-    return TipologyRadioWidget(field, field.vocabulary, request)
-
-
-
 class AddForm(form.AddForm):
     """
     """
     implements(IAddForm)
-    # template = ViewPageTemplateFile('templates/prenotazione_add.pt')
 
     render_form = False
     ignoreContext = True
 
-    # @property
-    # @memoize
-    # def fields(self):
-    #     '''
-    #     The fields for this form
-    #     '''
-    #     import pdb;pdb.set_trace()
-    #     if self.is_anonymous:
-    #         ff = ff.omit('captcha')
-    #     return ff
-    fields = field.Fields(IAddForm)
-    fields['captcha'].widgetFactory = ReCaptchaFieldWidget
-
+    @property
+    def fields(self):
+        fields = field.Fields(IAddForm)
+        fields['captcha'].widgetFactory = ReCaptchaFieldWidget
+        fields['tipology'].widgetFactory = CustomRadioFieldWidget
+        if api.user.is_anonymous():
+            return fields
+        return fields.omit('captcha')
 
     def updateWidgets(self):
         super(AddForm, self).updateWidgets()
         self.widgets['booking_date'].mode = HIDDEN_MODE
         bookingdate = self.request.form.get('form.booking_date')
         self.widgets['booking_date'].value = bookingdate
-        # XXX
-        # self.fields['tipology'].widgetFactory = TipologyWidget
-
 
     @property
     @memoize
@@ -313,6 +240,24 @@ class AddForm(form.AddForm):
                                     self.context,
                                     self.request)
 
+    def do_book(self, data):
+        '''
+        Create a Booking!
+        '''
+        booker = IBooker(self.context.aq_inner)
+        return booker.create(data)
+
+    @property
+    @memoize
+    def back_to_booking_url(self):
+        ''' This goes back to booking view.
+        '''
+        params = self.prenotazioni.remembered_params.copy()
+        b_date = self.booking_DateTime
+        if b_date:
+            params['data'] = b_date.strftime('%d/%m/%Y')
+        target = urlify(self.context.absolute_url(), params=params)
+        return target
 
     def exceedes_date_limit(self, data):
         '''
@@ -343,6 +288,7 @@ class AddForm(form.AddForm):
     def validate(self, action, data):
         '''
         Checks if we can book those data
+        https://docs.plone.org/develop/addons/schema-driven-forms/customising-form-behaviour/validation.html#validating-in-action-handlers
         '''
         errors = super(AddForm, self).validate(action, data)
         if not data.get('booking_date'):
@@ -356,24 +302,6 @@ class AddForm(form.AddForm):
             self.set_invariant_error(errors, ['booking_date'], msg)
         return errors
 
-    def do_book(self, data):
-        '''
-        Create a Booking!
-        '''
-        booker = IBooker(self.context.aq_inner)
-        return booker.create(data)
-
-    @property
-    @memoize
-    def back_to_booking_url(self):
-        ''' This goes back to booking view.
-        '''
-        params = self.prenotazioni.remembered_params.copy()
-        b_date = self.booking_DateTime
-        if b_date:
-            params['data'] = b_date.strftime('%d/%m/%Y')
-        target = urlify(self.context.absolute_url(), params=params)
-        return target
 
     @button.buttonAndHandler(_(u'action_book', u'Book'))
     def action_book(self, action):

@@ -49,7 +49,8 @@
             </tal:block>
           </tbody>
         </table>
-      <!--div metal:use-macro="here/batch_macros/macros/navigation" /-->
+        <tal:batchnavigation define="batchnavigation nocall:context/@@batchnavigation"
+                             replace="structure python:batchnavigation(batch)" />
     </tal:batch>
   </div>
 </div>

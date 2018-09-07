@@ -9,8 +9,10 @@ def reallocate_gate(obj):
     Skip this step if we have a form.gate parameter in the request
     '''
     context = obj.object
+
     if context.REQUEST.form.get('form.gate', '') and context.getGate():
         return
+
     container = context.getPrenotazioniFolder()
     booking_date = context.getData_prenotazione()
     new_gate = IBooker(container).get_available_gate(booking_date)

@@ -100,12 +100,12 @@
   />
 
 
-  <!--browser:page
-    for="..interfaces.IPrenotazioniFolder"
+  <browser:page
+    for="..content.prenotazioni_folder.IPrenotazioniFolder"
     name="vacation-booking"
     class=".vacations.VacationBooking"
     permission="cmf.ModifyPortalContent"
-  /-->
+  />
 
 
   <!-- prenotazione view -->
@@ -125,6 +125,11 @@
     permission="cmf.ModifyPortalContent"
   />
 
+
+  <!--
+    NEL CODICE NON VEDO NESSUNO CHE LA CHIAMI.
+    LA LASCIAMO QUI COMMENTATA
+  -->
   <!--browser:page
     for="..interfaces.IPrenotazione"
     name="prenotazione_reset_duration"
@@ -133,12 +138,12 @@
   /-->
 
 
-  <!--browser:page
+  <browser:page
     for="*"
     name="goto-prenotazioni"
     class=".base.RedirectToPrenotazioniFolderView"
     permission="zope2.View"
-  /-->
+  />
 
   <!-- Do not add Prenotazione through content menu -->
   <configure package="plone.app.content">
@@ -160,5 +165,27 @@
     template="templates/nofollow.pt"
     permission="zope.Public"
   />
+
+  <class class=".z3c_custom_widget.CustomRadioWidget">
+    <require
+        permission="zope.Public"
+        interface=".z3c_custom_widget.ICustomRadioWidget"
+        />
+  </class>
+
+  <browser:page
+      name="ploneform-render-widget"
+      for=".z3c_custom_widget.CustomRadioWidget"
+      layer="plone.app.z3cform.interfaces.IPloneFormLayer"
+      class=".z3c_custom_widget.RenderWidget"
+      permission="zope.Public"
+      />
+
+  <adapter
+      factory=".z3c_custom_widget.CustomRadioFieldWidget"
+      for="zope.schema.interfaces.IBool
+           z3c.form.interfaces.IFormLayer"
+      />
+
 
 </configure>

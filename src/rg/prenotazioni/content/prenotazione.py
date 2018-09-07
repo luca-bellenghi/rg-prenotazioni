@@ -69,11 +69,23 @@ class Prenotazione(Item):
     def getData_prenotazione(self):
         return self.data_prenotazione
 
+    def setData_prenotazione(self, date):
+        self.data_prenotazione = date
+        return
+
     def getData_scadenza(self):
         return self.data_scadenza
 
+    def setData_scadenza(self, date):
+        self.data_scadenza = date
+        return
+
     def getGate(self):
         return self.gate
+
+    def setGate(self, gate):
+        self.gate = gate
+        return
 
     def getTipologia_prenotazione(self):
         return self.tipologia_prenotazione

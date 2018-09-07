@@ -49,7 +49,7 @@ class Booker(object):
         if len(available_gates) == 1:
             return available_gates.pop()
         return choice(self.prenotazioni
-                      .get_less_used_gates(data_prenotazione.asdatetime()))
+                      .get_less_used_gates(data_prenotazione))
 
     def _create(self, data, duration=-1, force_gate=''):
         ''' Create a Booking object
@@ -59,7 +59,12 @@ class Booker(object):
         :param force_gate: by default gates are assigned randomly except if you
                            pass this parameter.
         '''
-        booking_date = data['booking_date']
+        import pdb;pdb.set_trace()
+        if isinstance(data['booking_date'], DateTime):
+            booking_date = data['booking_date'].asdatetime()
+        else:
+            booking_date = data['booking_date']
+
         container = self.prenotazioni.get_container(booking_date,
                                                     create_missing=True)
         tipology = data.get('tipology', '')
@@ -67,7 +72,10 @@ class Booker(object):
             # if we pass a negative duration it will be recalculated
             duration = self.prenotazioni.get_tipology_duration(tipology)
             # duration = (float(duration) / MIN_IN_DAY)
-        data_scadenza = (booking_date + timedelta(minutes=duration))
+            data_scadenza = (booking_date + timedelta(minutes=duration))
+        else:
+            # in this case we need to deal with seconds converted in days
+            data_scadenza = (booking_date + timedelta(days=duration))
         at_data = {'title': data['fullname'],
                    'description': data['subject'] or '',
                    'azienda': data['agency'] or '',
@@ -111,7 +119,7 @@ class Booker(object):
     def fix_container(self, booking):
         ''' Take a booking and move it to the right date
         '''
-        booking_date = booking.getData_prenotazione().asdatetime()
+        booking_date = booking.getData_prenotazione()
         old_container = booking.aq_parent
         new_container = self.prenotazioni.get_container(booking_date,
                                                         create_missing=True)

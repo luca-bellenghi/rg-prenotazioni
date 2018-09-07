@@ -1,8 +1,34 @@
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:tal="http://xml.zope.org/namespaces/tal"
-      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
-      i18n:domain="rg.prenotazioni">
-  <div class="tipology_widget">
+<div
+   metal:define-macro="widget-wrapper"
+   i18n:domain="plone"
+   tal:define="widget nocall:context;
+               hidden python:widget.mode == 'hidden';
+               error widget/error;
+               error_class python:error and ' error' or '';
+               empty_values python: (None, '', [], ('', '', '', '00', '00', ''), ('', '', ''));
+               empty_class python: (widget.value in empty_values) and ' empty' or '';
+           wrapper_css_class  widget/wrapper_css_class|nothing;
+               fieldname_class string:kssattr-fieldname-${widget/name};"
+   data-pat-inlinevalidation='{"type":"z3c.form"}'
+   tal:attributes="class string:field pat-inlinevalidation ${fieldname_class}${error_class}${empty_class} ${wrapper_css_class};
+                   data-fieldname widget/name;
+                   id string:formfield-${widget/id};">
+    <label for="" class="horizontal"
+        tal:attributes="for widget/id"
+        tal:condition="python: not hidden and widget.label">
+        <span i18n:translate="" tal:replace="widget/label">label</span>
+        <span class="required horizontal" title="Required"
+              tal:condition="python:widget.required and widget.mode == 'input'"
+              i18n:attributes="title title_required;">&nbsp;</span>
+
+        <span class="formHelp"
+            tal:define="description python: getattr(widget, 'description', widget.field.description)"
+            i18n:translate=""
+            tal:content="structure description"
+            tal:condition="python:description and not hidden"
+            >field description
+        </span>
+    </label>
     <div class="unbookable" tal:condition="view/unbookable_items">
       <p class="formHelp" i18n:translate="tipology_widget_warn_unavailable">
         The following tipologies will not fit the time you selected:
@@ -20,29 +46,12 @@
         </a>
       </p>
     </div>
-    <div class="value" tal:define="input_value python:view.name in request and view.getInputValue() or None">
-      <p class="formHelp" i18n:translate="tipology_widget_select_available">
-        You can select any of the following tipologies:
-      </p>
-      <tal:for repeat="item view/items">
-        <tal:line define="line_id python:'%s.%s' % (view.name, repeat['item'].index)"
-                  condition="python:item in view.bookable_items">
-          <label tal:attributes="for line_id" class="tipology">
-            <input class="radioType"
-                    name="name"
-                    type="radio"
-                    value=""
-                    tal:attributes="id line_id;
-                                    value item/value;
-                                    name view/name;
-                                    checked python:input_value==item.value and 'checked' or '';">
-              <tal:content replace="item/title">Vocabulary title</tal:content>
-          </label>
-        </tal:line>
-      </tal:for>
-      <input name="-empty-marker" type="hidden" value="1"
-             tal:attributes="name string:${view/name}-empty-marker">
+
+    <div class="fieldErrorBox"
+         tal:content="structure error/render|nothing">
+        Error
     </div>
-    <div class="visualClear"></div>
-  </div>
-</html>
+
+    <input type="text" tal:replace="structure widget/render"
+           metal:define-slot="widget" />
+</div>

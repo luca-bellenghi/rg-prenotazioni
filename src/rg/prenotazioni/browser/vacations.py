@@ -17,7 +17,7 @@ from rg.prenotazioni.utilities.urls import urlify
 from zope.interface import Interface
 from zope.interface.declarations import implements
 from zope.schema import Choice, Date, TextLine, ValidationError
-from z3c.form import form, button
+from z3c.form import form, button, field
 
 
 class InvalidDate(ValidationError):
@@ -86,6 +86,19 @@ class VacationBooking(form.Form):
     This is a view that allows to book a gate for a certain period
     '''
     implements(IVacationBooking)
+    ignoreContext = True
+
+    @property
+    def fields(self):
+        fields = field.Fields(IVacationBooking)
+        if not self.context.getGates():
+            return fields.omit('gate')
+        return fields
+
+    def updateWidgets(self):
+        super(VacationBooking, self).updateWidgets()
+        self.widgets['start_date'].value = datetime.today().strftime('%Y-%m-%d')
+
 
     def get_parsed_data(self, data):
         '''
@@ -106,18 +119,6 @@ class VacationBooking(form.Form):
         return api.content.get_view('prenotazioni_context_state',
                                     self.context,
                                     self.request)
-
-    @property
-    @memoize
-    def form_fields(self):
-        '''
-        The fields for this form
-        '''
-        ff = FormFields(IVacationBooking)
-        ff['start_date'].field.default = date.today()
-        if not self.context.getGates():
-            ff = ff.omit('gate')
-        return ff
 
     def get_start_time(self, data):
         ''' The requested start time
@@ -224,6 +225,7 @@ class VacationBooking(form.Form):
             booking_date = start_date + (float(slot.lower_value) / 86400)
             slot.__class__ = BaseSlot
             duration = float(len(slot)) / 86400
+            # duration = float(len(slot)) / 60
             slot_data = {'fullname': data['title'],
                          'subject': u'',
                          'agency': u'',
@@ -245,6 +247,7 @@ class VacationBooking(form.Form):
         '''
         Book this resource
         '''
+        data, errors = self.extractData()
         parsed_data = self.get_parsed_data(data)
         self.do_book(parsed_data)
         qs = {'data': data['start_date'].strftime('%d/%m/%Y')}

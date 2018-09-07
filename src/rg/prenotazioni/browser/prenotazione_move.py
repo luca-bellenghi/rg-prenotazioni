@@ -42,7 +42,7 @@ class MoveForm(form.Form):
     implements(IMoveForm)
     ignoreContext = True
 
-    # template = ViewPageTemplateFile('templates/prenotazione_move.pt')
+    template = ViewPageTemplateFile('templates/prenotazione_move.pt')
 
     hidden_fields = []
     fields = field.Fields(IMoveForm)
@@ -135,7 +135,7 @@ class MoveForm(form.Form):
         '''
         Move a Booking!
         '''
-        booking_date = DateTime(data['booking_date'])
+        booking_date = data['booking_date']
         duration = self.context.getDuration()
         data_scadenza = booking_date + duration
         self.context.setData_prenotazione(booking_date)
@@ -163,9 +163,9 @@ class MoveForm(form.Form):
             if day > self.prenotazioni_view.maximum_bookable_date.date():
                 return []
         date = day.strftime("%Y-%m-%d")
-        params = {'form.actions.move': 1,
+        params = {'form.buttons.action_move': 'Move',
                   'data': self.request.form.get('data', ''),
-                  'form.gate': gate}
+                  'form.widgets.gate': gate}
         times = slot.get_values_hr_every(300)
         urls = []
         base_url = "/".join((self.context.absolute_url(),
@@ -173,7 +173,7 @@ class MoveForm(form.Form):
         now_str = tznow().strftime("%Y-%m-%d %H:%M")
         for t in times:
             form_booking_date = " ".join((date, t))
-            params['form.booking_date'] = form_booking_date
+            params['form.widgets.booking_date'] = form_booking_date
             urls.append(
                 {
                     'title': t,
@@ -185,10 +185,11 @@ class MoveForm(form.Form):
         return urls
 
     @button.buttonAndHandler(_(u'action_move', u'Move'))
-    def action_move(self, action, data):
+    def action_move(self, action):
         '''
         Book this resource
         '''
+        data, errors = self.extractData()
         obj = self.do_move(data)
         obj  # pyflakes
         msg = _('booking_moved')
@@ -200,7 +201,7 @@ class MoveForm(form.Form):
         return self.request.response.redirect(target)
 
     @button.buttonAndHandler(_(u'action_cancel', u'Cancel'))
-    def action_cancel(self, action, data):
+    def action_cancel(self, action):
         '''
         Cancel
         '''
