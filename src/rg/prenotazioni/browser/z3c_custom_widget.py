@@ -12,6 +12,7 @@ from zope.component import getUtility
 from plone import api
 from zope.i18n import translate
 from z3c.form import interfaces, util
+from Products.CMFPlone.utils import safe_unicode
 import zope
 
 
@@ -112,7 +113,7 @@ class CustomRadioWidget(RadioWidget):
         ''' Get tipology bookability
         '''
         keys = sorted(self.tipologies_bookability['bookable'])
-        keys = [key.decode('utf8') for key in keys]
+        keys = [safe_unicode(key) for key in keys]
         return [self.vocabulary.getTerm(key) for key in keys if key in self.terms]
 
     @property
@@ -121,7 +122,7 @@ class CustomRadioWidget(RadioWidget):
         ''' Get tipology bookability
         '''
         keys = sorted(self.tipologies_bookability['unbookable'])
-        keys = [key.decode('utf8') for key in keys]
+        keys = [safe_unicode(key) for key in keys]
         return [self.vocabulary.getTerm(key) for key in keys if key in self.context.terms]
 
     @property

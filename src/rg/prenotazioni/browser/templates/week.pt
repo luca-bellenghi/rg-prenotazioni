@@ -14,8 +14,8 @@
             </p>
         </div>
 
-        <div class="documentDescription-box clear-block" tal:condition="here/getDescriptionAgenda">
-            <span tal:replace="structure here/getDescriptionAgenda/raw" />
+        <div class="documentDescription-box clear-block" tal:condition="context/descriptionAgenda">
+            <span tal:replace="structure context/descriptionAgenda/raw" />
         </div>
     </metal:block>
 

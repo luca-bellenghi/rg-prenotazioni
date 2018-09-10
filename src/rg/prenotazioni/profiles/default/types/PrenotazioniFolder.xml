@@ -7,7 +7,7 @@
   <!-- Basic properties -->
   <property
       i18n:translate=""
-      name="title">PrenotazioniFolder</property>
+      name="title">Booking Folder</property>
   <property
       i18n:translate=""
       name="description">A folder that will contain booking</property>
