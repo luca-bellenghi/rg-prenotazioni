@@ -25,6 +25,9 @@ from zope.component import getMultiAdapter
 from Products.statusmessages.interfaces import IStatusMessage
 from Acquisition import aq_inner
 from rg.prenotazioni.browser.z3c_custom_widget import CustomRadioFieldWidget
+from z3c.form.interfaces import ActionExecutionError
+from z3c.form.interfaces import WidgetActionExecutionError
+from zope.interface import Invalid
 from zope.interface import Invalid
 import re
 import pytz
@@ -207,6 +210,10 @@ class AddForm(form.AddForm):
         object
         '''
         booking_date = self.request.form.get('form.booking_date', None)
+        # BBB Adapt to z3c without change a lot the code
+        if not booking_date:
+            booking_date = self.request.form.get('form.widgets.booking_date', None)
+
         if not booking_date:
             return None
 
@@ -269,38 +276,15 @@ class AddForm(form.AddForm):
         booking_date = data.get('booking_date', None)
         if not isinstance(booking_date, datetime):
             return False
+
         date_limit = tznow() + timedelta(future_days)
+        if not booking_date.tzinfo:
+            tzinfo = date_limit.tzinfo
+            booking_date = tzinfo.localize(booking_date)
+
         if booking_date <= date_limit:
             return False
         return True
-
-    def set_invariant_error(self, errors, fields, msg):
-        '''
-        Set an error with invariant validation to highlights the involved
-        fields
-        '''
-        for field in fields:
-            label = self.widgets[field].label
-            error = WidgetInputError(field, label, msg)
-            errors.append(error)
-            self.widgets[field].error = msg
-
-    def validate(self, action, data):
-        '''
-        Checks if we can book those data
-        https://docs.plone.org/develop/addons/schema-driven-forms/customising-form-behaviour/validation.html#validating-in-action-handlers
-        '''
-        errors = super(AddForm, self).validate(action, data)
-        if not data.get('booking_date'):
-            return errors
-        conflict_manager = self.prenotazioni.conflict_manager
-        if conflict_manager.conflicts(data):
-            msg = _(u'Sorry, this slot is not available anymore.')
-            self.set_invariant_error(errors, ['booking_date'], msg)
-        if self.exceedes_date_limit(data):
-            msg = _(u'Sorry, you can not book this slot for now.')
-            self.set_invariant_error(errors, ['booking_date'], msg)
-        return errors
 
 
     @button.buttonAndHandler(_(u'action_book', u'Book'))
@@ -309,16 +293,35 @@ class AddForm(form.AddForm):
         Book this resource
         '''
         data, errors = self.extractData()
+
+        if not data.get('booking_date'):
+            raise WidgetActionExecutionError(
+                'booking_date',
+                Invalid(_(u"Please provide a booking date"))
+            )
+
+        conflict_manager = self.prenotazioni.conflict_manager
+        if conflict_manager.conflicts(data):
+            msg = _(u'Sorry, this slot is not available anymore.')
+            raise WidgetActionExecutionError(
+                'booking_date',
+                Invalid(msg)
+            )
+        if self.exceedes_date_limit(data):
+            msg = _(u'Sorry, you can not book this slot for now.')
+            raise WidgetActionExecutionError(
+                'booking_date',
+                Invalid(msg)
+            )
+
         captcha = getMultiAdapter(
             (aq_inner(self.context), self.request),
             name='recaptcha'
         )
-        # XXX
-        # if not captcha.verify():
-        if captcha.verify():
-            messages = IStatusMessage(self.request)
-            messages.add(u"Please check the captcha", type=u"error")
-            return
+
+        if 'captcha' in data and not captcha.verify():
+            msg=_(u"Please check the captcha")
+            raise ActionExecutionError(Invalid(msg))
 
         obj = self.do_book(data)
         if not obj:
@@ -339,7 +342,6 @@ class AddForm(form.AddForm):
                         params=params)
         return self.request.response.redirect(target)
 
-    # XXX c'era il null_validator
     @button.buttonAndHandler(_(u"action_cancel", default=u"Cancel"), name='cancel')
     def action_cancel(self, action):
         '''

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from DateTime import DateTime
-from Products.CMFCore.interfaces import ISiteRoot
+# from Products.CMFCore.interfaces import ISiteRoot
+from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from collective.contentrules.mailfromfield.actions.mail import (
     IMailFromFieldAction, MailActionExecutor as BaseExecutor)
 from plone.contentrules.rule.interfaces import IExecutable
@@ -8,13 +9,18 @@ from rg.prenotazioni.content.prenotazione import Prenotazione
 from zope.component._declaration import adapts
 from zope.interface import Interface
 from zope.interface.declarations import implements
+from zope.interface import implementer
+from Acquisition import aq_inner, aq_base
+from zope.component import adapter
+from collective.contentrules.mailfromfield import logger
+from Products.Archetypes.interfaces import IBaseContent
 
 
+@implementer(IExecutable)
+@adapter(IPloneSiteRoot, IMailFromFieldAction, Interface)
 class MailActionExecutor(BaseExecutor):
     """The executor for this action.
     """
-    implements(IExecutable)
-    adapts(ISiteRoot, IMailFromFieldAction, Interface)
 
     def get_mapping(self):
         '''Return a mapping that will replace markers in the template
@@ -45,3 +51,65 @@ class MailActionExecutor(BaseExecutor):
                         "time": plone.toLocalizedTime(date, time_only=True),
                         })
         return mapping
+
+    def get_target_obj(self):
+        '''Get's the target object, i.e. the object that will provide the field
+        with the email address
+        '''
+        target = self.element.target
+        if target == 'object':
+            obj = self.context
+        elif target == 'parent':
+            obj = self.event.object.aq_parent
+            # NEEDED JUST FOR PRENOTAZIONI...
+            return obj
+        elif target == 'target':
+            obj = self.event.object
+        else:
+            raise ValueError(target)
+        return aq_base(aq_inner(obj))
+
+
+    def get_recipients(self):
+        '''
+        The recipients of this mail
+        '''
+        # Try to load data from the target object
+        fieldName = str(self.element.fieldName)
+        obj = self.get_target_obj()
+
+        # 1: object attribute
+        try:
+            # BBB don't have time to investigate difference between original __getattribute__
+            # and this getattr... _getattribute__ remove the possibility to use objects chain
+            attr = getattr(obj, fieldName)
+            # 3: object method
+            if hasattr(attr, '__call__'):
+                recipients = attr()
+                logger.debug('getting e-mail from %s method' % fieldName)
+            else:
+                recipients = attr
+                logger.debug('getting e-mail from %s attribute' % fieldName)
+        except AttributeError:
+            # 2: try with AT field
+            if IBaseContent.providedBy(obj):
+                field = obj.getField(fieldName)
+                if field:
+                    recipients = field.get(obj)
+                else:
+                    recipients = False
+            else:
+                recipients = False
+            if not recipients:
+                recipients = obj.getProperty(fieldName, [])
+                if recipients:
+                    logger.debug('getting e-mail from %s CMF property'
+                                 % fieldName)
+            else:
+                logger.debug('getting e-mail from %s AT field' % fieldName)
+
+        # now transform recipients in a iterator, if needed
+        if type(recipients) == str or type(recipients) == unicode:
+            recipients = [str(recipients), ]
+        return filter(bool, recipients)
+

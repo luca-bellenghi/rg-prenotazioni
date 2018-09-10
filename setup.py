@@ -44,7 +44,7 @@ setup(
         'Products.GenericSetup>=1.8.2',
         'setuptools',
         'z3c.jbot',
-#        'collective.contentrules.mailfromfield>0.2.0',
+        'collective.contentrules.mailfromfield',
         'collective.fontawesome',
         'pyinter',
         'plone.formwidget.recaptcha',

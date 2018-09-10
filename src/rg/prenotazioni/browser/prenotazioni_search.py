@@ -127,12 +127,13 @@ class SearchForm(form.Form):
         query = self.get_query(data)
         return self.conflict_manager.unrestricted_prenotazioni(**query)
 
-    def validate(self, action, data):
-        '''
-        Checks if input dates are correct
-        '''
-        errors = super(SearchForm, self).validate(action, data)
-        return errors
+    # Use base form validation
+    # def validate(self, action, data):
+    #     '''
+    #     Checks if input dates are correct
+    #     '''
+    #     errors = super(SearchForm, self).validate(action, data)
+    #     return errors
 
     def setUpWidgets(self, ignore_request=False):
         '''

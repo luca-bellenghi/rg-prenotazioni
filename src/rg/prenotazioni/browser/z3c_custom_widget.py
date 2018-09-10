@@ -116,6 +116,15 @@ class CustomRadioWidget(RadioWidget):
         return [self.vocabulary.getTerm(key) for key in keys if key in self.terms]
 
     @property
+    @memoize
+    def unbookable_items(self):
+        ''' Get tipology bookability
+        '''
+        keys = sorted(self.tipologies_bookability['unbookable'])
+        keys = [key.decode('utf8') for key in keys]
+        return [self.vocabulary.getTerm(key) for key in keys if key in self.context.terms]
+
+    @property
     def items(self):
 
         bookable = self.bookable_items

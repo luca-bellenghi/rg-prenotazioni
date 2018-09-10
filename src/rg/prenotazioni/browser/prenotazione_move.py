@@ -17,6 +17,10 @@ from zope.interface import Interface
 from zope.interface.declarations import implements
 from zope.schema import Datetime, TextLine
 from z3c.form import form, button, field
+from z3c.form.interfaces import ActionExecutionError
+from z3c.form.interfaces import WidgetActionExecutionError
+from zope.interface import Invalid
+from plone.protect.utils import addTokenToUrl
 
 
 class IMoveForm(Interface):
@@ -105,31 +109,31 @@ class MoveForm(form.Form):
             errors.append(error)
             self.widgets[field].error = msg
 
-    def validate(self, action, data):
-        '''
-        Checks if we can book those data
-        '''
-        # We inject the tipology of this context
-        data['tipology'] = self.context.getTipologia_prenotazione()
-        errors = super(MoveForm, self).validate(action, data)
-        conflict_manager = self.prenotazioni_view.conflict_manager
-        current_data = self.context.getData_prenotazione()
-        current = {'booking_date': current_data.asdatetime(),
-                   'tipology': data['tipology']}
-        current_slot = conflict_manager.get_choosen_slot(current)
-        current_gate = self.context.getGate()
-        exclude = {current_gate: [current_slot]}
+    # def validate(self, action, data):
+    #     '''
+    #     Checks if we can book those data
+    #     '''
+    #     # We inject the tipology of this context
+    #     data['tipology'] = self.context.getTipologia_prenotazione()
+    #     errors = super(MoveForm, self).validate(action, data)
+    #     conflict_manager = self.prenotazioni_view.conflict_manager
+    #     current_data = self.context.getData_prenotazione()
+    #     current = {'booking_date': current_data.asdatetime(),
+    #                'tipology': data['tipology']}
+    #     current_slot = conflict_manager.get_choosen_slot(current)
+    #     current_gate = self.context.getGate()
+    #     exclude = {current_gate: [current_slot]}
 
-        if conflict_manager.conflicts(data, exclude=exclude):
-            msg = _(u'Sorry, this slot is not available or does not fit your '
-                    u'booking.')
-            self.set_invariant_error(errors, ['booking_date'], msg)
-        if self.exceedes_date_limit(data):
-            msg = _(u'Sorry, you can not book this slot for now.')
-            self.set_invariant_error(errors, ['booking_date'], msg)
-        for error in errors:
-            api.portal.show_message(error.errors, self.request, type="error")
-        return errors
+    #     if conflict_manager.conflicts(data, exclude=exclude):
+    #         msg = _(u'Sorry, this slot is not available or does not fit your '
+    #                 u'booking.')
+    #         self.set_invariant_error(errors, ['booking_date'], msg)
+    #     if self.exceedes_date_limit(data):
+    #         msg = _(u'Sorry, you can not book this slot for now.')
+    #         self.set_invariant_error(errors, ['booking_date'], msg)
+    #     for error in errors:
+    #         api.portal.show_message(error.errors, self.request, type="error")
+    #     return errors
 
     def do_move(self, data):
         '''
@@ -177,7 +181,7 @@ class MoveForm(form.Form):
             urls.append(
                 {
                     'title': t,
-                    'url': urlify(base_url, params=params),
+                    'url': addTokenToUrl(urlify(base_url, params=params)),
                     'class': t.endswith(':00') and 'oclock' or None,
                     'future': (now_str <= form_booking_date),
                 }
@@ -190,6 +194,30 @@ class MoveForm(form.Form):
         Book this resource
         '''
         data, errors = self.extractData()
+
+        data['tipology'] = self.context.getTipologia_prenotazione()
+        conflict_manager = self.prenotazioni_view.conflict_manager
+        current_data = self.context.getData_prenotazione()
+        current = {'booking_date': current_data,
+                   'tipology': data['tipology']}
+        current_slot = conflict_manager.get_choosen_slot(current)
+        current_gate = self.context.getGate()
+        exclude = {current_gate: [current_slot]}
+
+        if conflict_manager.conflicts(data, exclude=exclude):
+            msg = _(u'Sorry, this slot is not available or does not fit your '
+                    u'booking.')
+            api.portal.show_message(msg, self.request, type="error")
+            raise ActionExecutionError(
+                Invalid(msg)
+            )
+        if self.exceedes_date_limit(data):
+            msg = _(u'Sorry, you can not book this slot for now.')
+            api.portal.show_message(msg, self.request, type="error")
+            raise ActionExecutionError(
+                Invalid(msg)
+            )
+
         obj = self.do_move(data)
         obj  # pyflakes
         msg = _('booking_moved')

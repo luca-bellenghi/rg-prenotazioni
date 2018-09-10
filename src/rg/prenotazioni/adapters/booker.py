@@ -59,7 +59,6 @@ class Booker(object):
         :param force_gate: by default gates are assigned randomly except if you
                            pass this parameter.
         '''
-        import pdb;pdb.set_trace()
         if isinstance(data['booking_date'], DateTime):
             booking_date = data['booking_date'].asdatetime()
         else:
