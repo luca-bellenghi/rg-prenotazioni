@@ -17,35 +17,31 @@ from collective.z3cform.datagridfield import BlockDataGridFieldFactory
 
 class ISettimanaTipoRow(model.Schema):
 
-#    form.widget(giorno=BlockDataGridFieldFactory)
     giorno = schema.TextLine(
-        title=_(u"Giorno")
+        title=_(u"Giorno"),
+        required=False
     )
     inizio_m = schema.Choice(
         title=_(u"Ora inizio mattina"),
         vocabulary="rg.prenotazioni.VocOreInizio",
         required=False,
-        default=''
     )
     end_m = schema.Choice(
         title=_(u"Ora fine mattina"),
         vocabulary="rg.prenotazioni.VocOreInizio",
         required=False,
-        default=''
     )
 
     inizio_p = schema.Choice(
         title=_(u"Ora inizio pomeriggio"),
         vocabulary="rg.prenotazioni.VocOreInizio",
         required=False,
-        default=''
     )
 
     end_p = schema.Choice(
         title=_(u"Ora fine pomeriggio"),
         vocabulary="rg.prenotazioni.VocOreInizio",
         required=False,
-        default=''
     )
 
 
@@ -93,13 +89,13 @@ class IPrenotazioniFolder(model.Schema):
             schema=ISettimanaTipoRow
         ),
         default = [
-            {'giorno': u'Lunedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Martedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Mercoledì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Giovedì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Venerdì', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Sabato', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
-            {'giorno': u'Domenica', 'inizio_m': '', 'inizio_p': '', 'end_m': '', 'end_p': ''},
+            {'giorno': u'Lunedì', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Martedì', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Mercoledì', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Giovedì', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Venerdì', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Sabato', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
+            {'giorno': u'Domenica', 'inizio_m': None, 'inizio_p': None, 'end_m': None, 'end_p': None},
         ]
     )
     form.widget(settimana_tipo=DataGridFieldFactory)

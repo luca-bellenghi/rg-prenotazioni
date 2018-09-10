@@ -16,6 +16,8 @@ from plone.dexterity.events import EditCancelledEvent
 from plone.dexterity.events import EditFinishedEvent
 from zope.event import notify
 from z3c.form.interfaces import DISPLAY_MODE
+from collective.z3cform.datagridfield import BlockDataGridFieldFactory
+from zope.browserpage.viewpagetemplatefile import ViewPageTemplateFile as Z3VPTF  # noqa
 import re
 
 
@@ -28,7 +30,12 @@ class DefaultEditForm(BaseEdit):
         self.widgets['settimana_tipo'].columns[0]['mode'] = DISPLAY_MODE
         self.widgets['settimana_tipo'].allow_insert = False
         self.widgets['settimana_tipo'].allow_delete = False
+        self.widgets['settimana_tipo'].allow_append = False
+        self.widgets['settimana_tipo'].allow_reorder = False
 
+    def datagridUpdateWidgets(self, subform, widgets, widget):
+        if 'giorno' in widgets.keys():
+            widgets['giorno'].template = Z3VPTF('templates/custom_dgf_input.pt')
 
     @button.buttonAndHandler(_dmf(u'Save'), name='save')
     def handleApply(self, action):
@@ -65,7 +72,12 @@ class DefaultAddForm(BaseAddForm):
         self.widgets['settimana_tipo'].columns[0]['mode'] = DISPLAY_MODE
         self.widgets['settimana_tipo'].allow_insert = False
         self.widgets['settimana_tipo'].allow_delete = False
-        self.widgets['settimana_tipo'].auto_append = False
+        self.widgets['settimana_tipo'].allow_append = False
+        self.widgets['settimana_tipo'].allow_reorder = False
+
+    def datagridUpdateWidgets(self, subform, widgets, widget):
+        if 'giorno' in widgets.keys():
+            widgets['giorno'].template = Z3VPTF('templates/custom_dgf_input.pt')
 
 
     @button.buttonAndHandler(_dmf('Save'), name='save')

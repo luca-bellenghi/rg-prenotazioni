@@ -36,7 +36,6 @@ class VocOreInizio(object):
                 items.append(
                     VocabItem(hour+minute, time),
                 )
-        items.insert(0, VocabItem('', '--:--'))
 
         if not IDexterityContent.providedBy(context):
             req = getRequest()
