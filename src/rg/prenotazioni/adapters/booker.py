@@ -86,11 +86,15 @@ class Booker(object):
                    'tipologia_prenotazione': data.get('tipology', ''),
                    }
         if not force_gate:
-            available_gate = self.get_available_gate(booking_date, data_scadenza)
-            if not available_gate:
-                # there isn't a free slot in any available gates
-                return None
-            at_data['gate'] = self.get_available_gate(booking_date, data_scadenza)
+            gates = self.prenotazioni.get_gates()
+            if filter(bool, gates):  # we could have [''] for the empty textarea
+                # so, if the booker have gates, check if we have available gate
+                available_gate = self.get_available_gate(booking_date, data_scadenza)
+                if not available_gate: # if not
+                    # there isn't a free slot in any available gates
+                    return None
+                # else assign the gate to the booking
+                at_data['gate'] = available_gate
         else:
             at_data['gate'] = force_gate
 

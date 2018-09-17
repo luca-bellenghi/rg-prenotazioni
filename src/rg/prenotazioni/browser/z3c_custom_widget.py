@@ -13,6 +13,8 @@ from plone import api
 from zope.i18n import translate
 from z3c.form import interfaces, util
 from Products.CMFPlone.utils import safe_unicode
+from zope.pagetemplate.interfaces import IPageTemplate
+from z3c.form.widget import SequenceWidget
 import zope
 
 
@@ -68,7 +70,6 @@ class RenderWidget(ViewMixinForTemplates, BrowserView):
         keys = sorted(self.tipologies_bookability['unbookable'])
         keys = [key.decode('utf8') for key in keys]
         return [self.vocabulary.getTerm(key) for key in keys if key in self.context.terms]
-
 
 
 @zope.interface.implementer_only(ICustomRadioWidget)
@@ -132,6 +133,7 @@ class CustomRadioWidget(RadioWidget):
 
         if not bookable:
             return
+        results = []
         for count, term in enumerate(self.bookable_items):
             checked = self.isChecked(term)
             id = '%s-%i' % (self.id, count)
@@ -140,8 +142,30 @@ class CustomRadioWidget(RadioWidget):
                                   default=term.title)
             else:
                 label = util.toUnicode(term.value)
-            yield {'id': id, 'name': self.name, 'value': term.token,
-                   'label': label, 'checked': checked}
+            results.append({'id': id, 'name': self.name, 'value': term.token,
+                            'label': label, 'checked': checked, 'index': count})
+        return results
+
+    def renderForValue(self, value, index=None):
+        # customize 'cause we need to pass index
+        terms = list(self.terms)
+        try:
+            term = self.terms.getTermByToken(value)
+        except LookupError:
+            if value == SequenceWidget.noValueToken:
+                term = SimpleTerm(value)
+                terms.insert(0, term)
+            else:
+                raise
+        checked = self.isChecked(term)
+        # id = '%s-%i' % (self.id, terms.index(term))
+        id = '%s-%i' % (self.id, index)
+        item = {'id': id, 'name': self.name, 'value': term.token,
+                'checked': checked}
+        template = zope.component.getMultiAdapter(
+            (self.context, self.request, self.form, self.field, self),
+            IPageTemplate, name=self.mode + '_single')
+        return template(self, item)
 
 
 @zope.component.adapter(zope.schema.interfaces.IField, interfaces.IFormLayer)

@@ -294,7 +294,6 @@ class AddForm(form.AddForm):
         '''
         data, errors = self.extractData()
 
-        import pdb;pdb.set_trace()
         if not data.get('booking_date'):
             raise WidgetActionExecutionError(
                 'booking_date',

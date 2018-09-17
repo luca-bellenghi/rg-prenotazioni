@@ -1,6 +1,7 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:z3c="http://namespaces.zope.org/z3c"
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="rg.prenotazioni">
 
@@ -185,6 +186,13 @@
       factory=".z3c_custom_widget.CustomRadioFieldWidget"
       for="zope.schema.interfaces.IBool
            z3c.form.interfaces.IFormLayer"
+      />
+
+  <z3c:widgetTemplate
+      mode="input"
+      widget=".z3c_custom_widget.ICustomRadioWidget"
+      layer="z3c.form.interfaces.IFormLayer"
+      template="custom_radio_input.pt"
       />
 
 
