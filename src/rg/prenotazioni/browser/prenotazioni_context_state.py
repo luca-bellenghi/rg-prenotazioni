@@ -708,10 +708,10 @@ class PrenotazioniContextState(BrowserView):
     def get_tipology_duration(self, tipology):
         """ Return the seconds for this tipology
         """
-        if isinstance(tipology, unicode):
-            tipology = tipology.encode('utf8')
         if isinstance(tipology, dict):
             return int(tipology['duration']) * 60
+        if isinstance(tipology, basestring) and not isinstance(tipology, unicode):
+            tipology = tipology.decode('utf8')
         return self.tipology_durations.get(tipology, 1)
 
     @memoize
