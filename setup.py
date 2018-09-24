@@ -14,7 +14,7 @@ long_description = '\n\n'.join([
 
 setup(
     name='rg.prenotazioni',
-    version='1.1',
+    version='4.0',
     description="RenoGalliera prenotazioni",
     long_description=long_description,
     # Get more from https://pypi.python.org/pypi?%3Aaction=list_classifiers
