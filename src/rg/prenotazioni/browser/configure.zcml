@@ -32,6 +32,7 @@
          plone.dexterity.interfaces.IDexterityFTI"
     provides="zope.publisher.interfaces.browser.IBrowserPage"
     factory=".add_edit_view.DefaultAddView"
+    name="PrenotazioniFolder"
   />
 
   <include package="plone.app.contentmenu" />
