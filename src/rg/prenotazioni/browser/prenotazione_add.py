@@ -141,8 +141,7 @@ class IAddForm(Interface):
         required=False,
     )
     captcha = TextLine(
-        title=_('label_captcha',
-                u'Type the code from the picture shown below.'),
+        title=u" ",
         description=u"",
         required=False
     )
