@@ -197,11 +197,7 @@ Notes
 =====
 
 **rg.prenotazioni 4.x** is a very deep rewrite of previous version; it's tested only on
-Plone 5 and was rewrited taking old parts of code when needed.
-We don't provide migration!
-Package was created from scratch so we don't even have history!
-Really sorry for that.
-Word is a sad place.
+Plone 5 and was rewrited taking old parts of code when needed. We don't provide migration!
 
 **rg.prenotazioni 3.x** has been tested with Plone 4.2 and Plone 4.3 and works with Python 2.7.
 
